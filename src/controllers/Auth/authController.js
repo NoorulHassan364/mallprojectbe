@@ -5,13 +5,13 @@ const bcrypt = require("bcryptjs");
 class Auth {
   signup = async (req, res) => {
     try {
-      const user = await User.findOne({ email: req.body.email });
-      if (user) {
-        return res.status(400).json({
-          status: "error",
-          message: "email already exist!",
-        });
-      }
+      // const user = await User.findOne({ email: req.body.email });
+      // if (user) {
+      //   return res.status(400).json({
+      //     status: "error",
+      //     message: "email already exist!",
+      //   });
+      // }
 
 
       const data = await User.create(req.body);
@@ -25,7 +25,7 @@ class Auth {
       console.log(error);
       res.status(500).json({
         status: "error",
-        message: "server error",
+        message: error,
       });
     }
   };

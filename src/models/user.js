@@ -19,11 +19,6 @@ const userSchema = new mongoose.Schema({
   gender: {
     type: String,
   },
-  favourites: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "College",
-    required: true,
-  }],
   address: {
     type: String,
   },
@@ -33,6 +28,10 @@ const userSchema = new mongoose.Schema({
   userType: {
     type: String
   },
+  purchases: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Shop",
+  }],
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
