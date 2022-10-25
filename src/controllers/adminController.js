@@ -1,5 +1,6 @@
 const ShopModal = require("../models/shopModel");
 const InterestForm = require("../models/interestForm");
+const UserModal = require("../models/user");
 
 exports.addShop = async (req, res) => {
     try {
@@ -21,7 +22,7 @@ exports.addShop = async (req, res) => {
 
 exports.getShops = async (req, res) => {
     try {
-        let shops = await ShopModal.find({});
+        let shops = await ShopModal.find({ IsSold: false });
         res.status(201).json({
             status: "success",
             data: shops

@@ -73,3 +73,22 @@ exports.webhookCheckout = (req, res, next) => {
     }
     res.status(200).json({ received: true })
 }
+
+
+
+exports.getUserShops = async (req, res) => {
+    try {
+        let shops = await UserModel.findById(req.params.id).populate([
+            {
+                path: "purchases",
+            },
+        ]);;
+        res.status(201).json({
+            status: "success",
+            data: shops
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(400).send(error.message);
+    }
+}
