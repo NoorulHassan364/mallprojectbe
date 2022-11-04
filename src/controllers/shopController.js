@@ -97,7 +97,7 @@ exports.getUserShops = async (req, res) => {
 
 exports.getShopStatistics = async (req, res) => {
   try {
-    let totalShops = await shopModel.find({ IsSold: false });
+    let totalShops = await shopModel.find({});
     let soldShops = await shopModel.find({ IsSold: true });
 
     res.status(201).json({
