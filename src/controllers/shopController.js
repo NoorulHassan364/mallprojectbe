@@ -52,7 +52,10 @@ const createCheckoutBooking = async (session) => {
     $push: { purchases: shopId },
   });
 
-  await shopModel.findByIdAndUpdate(shopId, { IsSold: true });
+  await shopModel.findByIdAndUpdate(shopId, {
+    IsSold: true,
+    client: user?._id,
+  });
 };
 
 exports.webhookCheckout = (req, res, next) => {

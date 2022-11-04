@@ -10,7 +10,16 @@ Router.delete("/shop/:id", adminController.deleteShop);
 Router.patch("/shop/:id", multerUploadS3.any(), adminController.updateShop);
 Router.get("/shop/statistics", shopController.getShopStatistics);
 
-Router.post("/interestForm", multerUploadS3.any(), adminController.addInterestForm);
+Router.post(
+  "/interestForm",
+  multerUploadS3.any(),
+  adminController.addInterestForm
+);
 Router.get("/interestForm", adminController.getInterestForm);
+
+Router.post("/category", adminController.addCategory);
+Router.get("/category", adminController.getCategories);
+Router.delete("/category/:id", adminController.deleteCategory);
+Router.patch("/category/:id", adminController.updateCategory);
 
 module.exports = Router;
