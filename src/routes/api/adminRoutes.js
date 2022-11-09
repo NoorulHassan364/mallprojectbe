@@ -22,4 +22,6 @@ Router.get("/category", adminController.getCategories);
 Router.delete("/category/:id", adminController.deleteCategory);
 Router.patch("/category/:id", adminController.updateCategory);
 
+Router.get("/users", adminController.getUsers);
+
 module.exports = Router;

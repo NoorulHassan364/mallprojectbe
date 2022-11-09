@@ -160,3 +160,16 @@ exports.updateCategory = async (req, res) => {
     res.status(400).send(error.message);
   }
 };
+
+exports.getUsers = async (req, res) => {
+  try {
+    let users = await UserModal.find({});
+    res.status(201).json({
+      status: "success",
+      data: users,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error.message);
+  }
+};

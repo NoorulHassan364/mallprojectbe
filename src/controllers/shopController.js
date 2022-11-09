@@ -1,6 +1,7 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const UserModel = require("../models/user");
 const shopModel = require("../models/shopModel");
+const leveyModel = require("../models/leveyModel");
 
 exports.getCheckOutSession = async (req, res, next) => {
   try {
@@ -26,10 +27,10 @@ exports.getCheckOutSession = async (req, res, next) => {
         },
       ],
       mode: "payment",
-      success_url: `${process.env.SUCCESS_PAYMENT_URL}`,
-      cancel_url: `${process.env.CANCEL_PAYMENT_URL}`,
+      success_url: `${process.env.SUCCESS_PAYMENT_URL}/shops`,
+      cancel_url: `${process.env.CANCEL_PAYMENT_URL}/shops`,
       customer_email: user?.email,
-      client_reference_id: req.params.shopId,
+      client_reference_id: `${req.params.shopId}-shop`,
     });
 
     res.status(200).json({
@@ -45,17 +46,28 @@ exports.getCheckOutSession = async (req, res, next) => {
 };
 
 const createCheckoutBooking = async (session) => {
-  let shopId = session.client_reference_id;
-  let user = await UserModel.findOne({ email: session.customer_email });
+  let splitRefId = session.client_reference_id.split("-");
+  if (splitRefId[1] == "shop") {
+    let shopId = splitRefId[0];
+    let user = await UserModel.findOne({ email: session.customer_email });
 
-  await UserModel.findByIdAndUpdate(user?._id, {
-    $push: { purchases: shopId },
-  });
+    await UserModel.findByIdAndUpdate(user?._id, {
+      $push: { purchases: shopId },
+    });
 
-  await shopModel.findByIdAndUpdate(shopId, {
-    IsSold: true,
-    client: user?._id,
-  });
+    await shopModel.findByIdAndUpdate(shopId, {
+      IsSold: true,
+      client: user?._id,
+    });
+  } else {
+    let leveyId = splitRefId[0];
+    // let user = await UserModel.findOne({ email: session.customer_email });
+
+    // await UserModel.findByIdAndUpdate(user?._id, {
+    //   $push: { purchases: shopId },
+    // });
+    await leveyModel.findByIdAndUpdate(leveyId, { IsPayed: true });
+  }
 };
 
 exports.webhookCheckout = (req, res, next) => {
