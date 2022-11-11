@@ -74,7 +74,7 @@ const createCheckoutBooking = async (session) => {
     if (lastRec?.length == 0) {
       lastRec = 1;
     } else {
-      lastRec = lastRec[0]?.invoiceNo + 1;
+      lastRec = parseInt(lastRec[0]?.invoiceNo) + 1;
     }
     console.log("lastRec", lastRec);
     await leveyModel.findByIdAndUpdate(leveyId, {
