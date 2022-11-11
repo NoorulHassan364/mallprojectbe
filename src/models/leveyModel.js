@@ -25,7 +25,7 @@ const leveySchema = new mongoose.Schema({
     default: false,
   },
   invoiceNo: {
-    type: Number,
+    type: String,
     required: false,
   },
   payedDate: {

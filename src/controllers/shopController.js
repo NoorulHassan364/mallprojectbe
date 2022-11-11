@@ -70,15 +70,16 @@ const createCheckoutBooking = async (session) => {
     let lastRec = await leveyModel
       .find({ IsPayed: true })
       .sort({ payedDate: -1 });
+    console.log("lastRec", lastRec);
     if (lastRec?.length == 0) {
-      lastRec = 0;
+      lastRec = 1;
     } else {
-      lastRec = lastRec[0]?.invoiceNo;
+      lastRec = lastRec[0]?.invoiceNo + 1;
     }
     await leveyModel.findByIdAndUpdate(leveyId, {
       IsPayed: true,
       payedDate: date,
-      invoiceNo: lastRec + 1,
+      invoiceNo: lastRec,
     });
   }
 };
