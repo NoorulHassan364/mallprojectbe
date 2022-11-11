@@ -66,7 +66,20 @@ const createCheckoutBooking = async (session) => {
     // await UserModel.findByIdAndUpdate(user?._id, {
     //   $push: { purchases: shopId },
     // });
-    await leveyModel.findByIdAndUpdate(leveyId, { IsPayed: true });
+    let date = Date.now();
+    let lastRec = await leveyModel
+      .find({ IsPayed: true })
+      .sort({ payedDate: -1 });
+    if (lastRec?.length == 0) {
+      lastRec = 0;
+    } else {
+      lastRec = lastRec[0]?.invoiceNo;
+    }
+    await leveyModel.findByIdAndUpdate(leveyId, {
+      IsPayed: true,
+      payedDate: date,
+      invoiceNo: lastRec + 1,
+    });
   }
 };
 

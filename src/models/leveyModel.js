@@ -24,6 +24,14 @@ const leveySchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  invoiceNo: {
+    type: Number,
+    required: false,
+  },
+  payedDate: {
+    type: Date,
+    required: false,
+  },
 });
 
 const Levey = mongoose.model("Levey", leveySchema);
