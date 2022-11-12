@@ -16,7 +16,8 @@ exports.getCheckOutSession = async (req, res, next) => {
         {
           price_data: {
             currency: "ngn",
-            unit_amount: shop?.price * 100,
+            unit_amount:
+              req.query.type == "buy" ? shop?.price * 100 : shop?.rent * 100,
             product_data: {
               name: `${shop?.name}`,
               // description: 'Comfortable cotton t-shirt',
@@ -30,7 +31,7 @@ exports.getCheckOutSession = async (req, res, next) => {
       success_url: `${process.env.SUCCESS_PAYMENT_URL}/shops`,
       cancel_url: `${process.env.CANCEL_PAYMENT_URL}/shops`,
       customer_email: user?.email,
-      client_reference_id: `${req.params.shopId}-shop`,
+      client_reference_id: `${req.params.shopId}-shop-${req.query.type}`,
     });
 
     res.status(200).json({
@@ -50,6 +51,30 @@ const createCheckoutBooking = async (session) => {
   if (splitRefId[1] == "shop") {
     let shopId = splitRefId[0];
     let user = await UserModel.findOne({ email: session.customer_email });
+    let shop = await shopModel.findByIdAndUpdate(shopId);
+
+    let date = Date.now();
+    let lastRec = await leveyModel
+      .find({ user: user?._id, IsPayed: true })
+      .sort({ payedDate: -1 });
+    if (lastRec?.length == 0) {
+      lastRec = 1;
+    } else {
+      lastRec = parseInt(lastRec[0]?.invoiceNo) + 1;
+    }
+
+    await leveyModel.create(leveyId, {
+      leveyBillName:
+        splitRefId[2] === "buy"
+          ? `Bought- ${shop?.name}`
+          : `Rent ${shop?.name}`,
+      IsPayed: true,
+      payedDate: date,
+      amount: splitRefId[2] === "buy" ? shop?.price : shop?.rent,
+      dueDate: date,
+      user: user,
+      invoiceNo: lastRec,
+    });
 
     await UserModel.findByIdAndUpdate(user?._id, {
       $push: { purchases: shopId },
