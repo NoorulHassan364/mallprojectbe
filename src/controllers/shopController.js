@@ -63,7 +63,7 @@ const createCheckoutBooking = async (session) => {
       lastRec = parseInt(lastRec[0]?.invoiceNo) + 1;
     }
 
-    await leveyModel.create(leveyId, {
+    await leveyModel.create({
       leveyBillName:
         splitRefId[2] === "buy"
           ? `Bought- ${shop?.name}`
