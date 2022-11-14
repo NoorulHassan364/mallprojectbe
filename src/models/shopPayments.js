@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const leveySchema = new mongoose.Schema({
-  leveyBillName: {
+const shopPaymentsSchema = new mongoose.Schema({
+  paymentName: {
     type: String,
     required: true,
   },
@@ -9,16 +9,18 @@ const leveySchema = new mongoose.Schema({
     required: true,
   },
   dueDate: {
-    type: Date,
-    required: true,
-  },
-  attachment: {
     type: String,
-    // required: true,
+    required: true,
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
+    required: true,
+  },
+  shop: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Shop",
+    required: true,
   },
   IsPayed: {
     type: Boolean,
@@ -26,7 +28,7 @@ const leveySchema = new mongoose.Schema({
   },
   invoiceNo: {
     type: String,
-    required: false,
+    required: true,
   },
   payedDate: {
     type: Date,
@@ -34,5 +36,5 @@ const leveySchema = new mongoose.Schema({
   },
 });
 
-const Levey = mongoose.model("Levey", leveySchema);
-module.exports = Levey;
+const shopPayments = mongoose.model("shopPayments", shopPaymentsSchema);
+module.exports = shopPayments;

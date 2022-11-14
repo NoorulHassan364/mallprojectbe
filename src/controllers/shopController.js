@@ -2,6 +2,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const UserModel = require("../models/user");
 const shopModel = require("../models/shopModel");
 const leveyModel = require("../models/leveyModel");
+const shopPayments = require("../models/shopPayments");
 
 exports.getCheckOutSession = async (req, res, next) => {
   try {
@@ -17,7 +18,9 @@ exports.getCheckOutSession = async (req, res, next) => {
           price_data: {
             currency: "ngn",
             unit_amount:
-              req.query.type == "buy" ? shop?.price * 100 : shop?.rent * 100,
+              req.query.type == "buy"
+                ? shop?.price * 100
+                : Math.round((parseInt(shop?.price) / 100) * 20) * 100,
             product_data: {
               name: `${shop?.name}`,
               // description: 'Comfortable cotton t-shirt',
@@ -49,12 +52,30 @@ exports.getCheckOutSession = async (req, res, next) => {
 const createCheckoutBooking = async (session) => {
   let splitRefId = session.client_reference_id.split("-");
   if (splitRefId[1] == "shop") {
+    // let arr = [];
+    // let date = new Date();
+    // let currMonth = date.getMonth() + 1;
+    // let currYear = date.getFullYear();
+    // console.log("currMonth", currMonth);
+    // console.log("currYear", currYear);
+    // for (let i = 0; i < 84; i++) {
+    //   currMonth += 1;
+    //   if (currMonth == 13) {
+    //     arr.push({ d: 1, m: 1, year: currYear + 1 });
+    //     currMonth = 1;
+    //     currYear += 1;
+    //   } else {
+    //     arr.push({ d: 1, m: currMonth, year: currYear });
+    //   }
+    // }
+
     let shopId = splitRefId[0];
     let user = await UserModel.findOne({ email: session.customer_email });
     let shop = await shopModel.findByIdAndUpdate(shopId);
 
     let date = Date.now();
-    let lastRec = await leveyModel
+
+    let lastRec = await shopPayments
       .find({ user: user?._id, IsPayed: true })
       .sort({ payedDate: -1 });
     if (lastRec?.length == 0) {
@@ -63,16 +84,20 @@ const createCheckoutBooking = async (session) => {
       lastRec = parseInt(lastRec[0]?.invoiceNo) + 1;
     }
 
-    await leveyModel.create({
-      leveyBillName:
+    await shopPayments.create({
+      paymentName:
         splitRefId[2] === "buy"
-          ? `Bought- ${shop?.name}`
-          : `Rent ${shop?.name}`,
+          ? `${shop?.name} (Bought)`
+          : `${shop?.name} (20%)`,
       IsPayed: true,
       payedDate: date,
-      amount: splitRefId[2] === "buy" ? shop?.price : shop?.rent,
+      amount:
+        splitRefId[2] === "buy"
+          ? shop?.price
+          : Math.round((parseInt(shop?.price) / 100) * 20),
       dueDate: date,
       user: user,
+      shop: shop?._id,
       invoiceNo: lastRec,
     });
 
