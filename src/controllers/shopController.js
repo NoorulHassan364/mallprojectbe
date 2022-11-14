@@ -97,7 +97,8 @@ const createCheckoutBooking = async (session) => {
     for (let i = 1; i < 85; i++) {
       currMonth += 1;
       if (currMonth == 13) {
-        arr.push({
+        // arr.push(
+        await shopPayments.create({
           paymentName: `${i}-Installment (${shop?.name})`,
           IsPayed: false,
           payedDate: "",
@@ -107,10 +108,12 @@ const createCheckoutBooking = async (session) => {
           shop: shop?._id,
           invoiceNo: "",
         });
+
+        // );
         currMonth = 1;
         currYear += 1;
       } else {
-        arr.push({
+        await shopPayments.create({
           paymentName: `${i}-Installment (${shop?.name})`,
           IsPayed: false,
           payedDate: "",
@@ -120,6 +123,9 @@ const createCheckoutBooking = async (session) => {
           shop: shop?._id,
           invoiceNo: "",
         });
+        // arr.push(
+
+        // );
       }
     }
 
