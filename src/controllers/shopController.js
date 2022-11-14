@@ -90,7 +90,7 @@ const createCheckoutBooking = async (session) => {
     let currYear = curDate.getFullYear();
 
     let monthlyInstallment =
-      Match.round(
+      Math.round(
         parseInt(shop?.price) - Math.round((parseInt(shop?.price) / 100) * 20)
       ) / 84;
 
