@@ -28,7 +28,7 @@ const shopPaymentsSchema = new mongoose.Schema({
   },
   invoiceNo: {
     type: String,
-    required: true,
+    required: false,
   },
   payedDate: {
     type: Date,

@@ -52,23 +52,6 @@ exports.getCheckOutSession = async (req, res, next) => {
 const createCheckoutBooking = async (session) => {
   let splitRefId = session.client_reference_id.split("-");
   if (splitRefId[1] == "shop") {
-    // let arr = [];
-    // let date = new Date();
-    // let currMonth = date.getMonth() + 1;
-    // let currYear = date.getFullYear();
-    // console.log("currMonth", currMonth);
-    // console.log("currYear", currYear);
-    // for (let i = 0; i < 84; i++) {
-    //   currMonth += 1;
-    //   if (currMonth == 13) {
-    //     arr.push({ d: 1, m: 1, year: currYear + 1 });
-    //     currMonth = 1;
-    //     currYear += 1;
-    //   } else {
-    //     arr.push({ d: 1, m: currMonth, year: currYear });
-    //   }
-    // }
-
     let shopId = splitRefId[0];
     let user = await UserModel.findOne({ email: session.customer_email });
     let shop = await shopModel.findByIdAndUpdate(shopId);
@@ -100,6 +83,47 @@ const createCheckoutBooking = async (session) => {
       shop: shop?._id,
       invoiceNo: lastRec,
     });
+
+    let arr = [];
+    let curDate = new Date();
+    let currMonth = curDate.getMonth() + 1;
+    let currYear = curDate.getFullYear();
+
+    let monthlyInstallment =
+      Match.round(
+        parseInt(shop?.price) - Math.round((parseInt(shop?.price) / 100) * 20)
+      ) / 84;
+
+    for (let i = 1; i < 85; i++) {
+      currMonth += 1;
+      if (currMonth == 13) {
+        arr.push({
+          paymentName: `${i}-Installment (${shop?.name})`,
+          IsPayed: false,
+          payedDate: "",
+          amount: monthlyInstallment,
+          dueDate: `${1}-${1}-${currYear + 1}`,
+          user: user,
+          shop: shop?._id,
+          invoiceNo: "",
+        });
+        currMonth = 1;
+        currYear += 1;
+      } else {
+        arr.push({
+          paymentName: `${i}-Installment (${shop?.name})`,
+          IsPayed: false,
+          payedDate: "",
+          amount: monthlyInstallment,
+          dueDate: `${1}-${currMonth}-${currYear}`,
+          user: user,
+          shop: shop?._id,
+          invoiceNo: "",
+        });
+      }
+    }
+
+    await shopPayments.create(arr);
 
     await UserModel.findByIdAndUpdate(user?._id, {
       $push: { purchases: shopId },
