@@ -25,7 +25,7 @@ exports.getCheckOutSessionShopPayment = async (req, res, next) => {
       line_items: [
         {
           price_data: {
-            currency: "usd",
+            currency: "ngn",
             unit_amount: Math.round(sPayment?.amount) * 100,
             product_data: {
               name: `${sPayment?.paymentName}`,

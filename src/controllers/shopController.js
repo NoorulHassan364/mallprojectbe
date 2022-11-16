@@ -16,7 +16,7 @@ exports.getCheckOutSession = async (req, res, next) => {
       line_items: [
         {
           price_data: {
-            currency: "usd",
+            currency: "ngn",
             unit_amount:
               req.query.type == "buy"
                 ? shop?.price * 100
@@ -31,7 +31,7 @@ exports.getCheckOutSession = async (req, res, next) => {
         },
       ],
       mode: "payment",
-      success_url: `${process.env.SUCCESS_PAYMENT_URL}/shops`,
+      success_url: `${process.env.SUCCESS_PAYMENT_URL}/shopPayments`,
       cancel_url: `${process.env.CANCEL_PAYMENT_URL}/shops`,
       customer_email: user?.email,
       client_reference_id: `${req.params.shopId}-shop-${req.query.type}`,

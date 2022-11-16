@@ -43,7 +43,7 @@ exports.getCheckOutSessionLevey = async (req, res, next) => {
       line_items: [
         {
           price_data: {
-            currency: "usd",
+            currency: "ngn",
             unit_amount: levey?.amount * 100,
             product_data: {
               name: `${levey?.leveyBillName}`,
