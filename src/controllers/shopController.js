@@ -51,9 +51,9 @@ exports.getCheckOutSession = async (req, res, next) => {
 
 const createCheckoutBooking = async (session) => {
   let splitRefId = session.client_reference_id.split("-");
+  let user = await UserModel.findOne({ email: session.customer_email });
   if (splitRefId[1] == "shop") {
     let shopId = splitRefId[0];
-    let user = await UserModel.findOne({ email: session.customer_email });
     let shop = await shopModel.findByIdAndUpdate(shopId);
 
     let date = Date.now();
@@ -78,7 +78,7 @@ const createCheckoutBooking = async (session) => {
         splitRefId[2] === "buy"
           ? shop?.price
           : Math.round((parseInt(shop?.price) / 100) * 20),
-      dueDate: date,
+      dueDate: `${date.getDate()}-${getMonth() + 1}-${date.getFullYear()}`,
       user: user,
       shop: shop?._id,
       invoiceNo: lastRec,
@@ -89,10 +89,10 @@ const createCheckoutBooking = async (session) => {
     let currMonth = curDate.getMonth() + 1;
     let currYear = curDate.getFullYear();
 
-    let monthlyInstallment =
-      Math.round(
-        parseInt(shop?.price) - Math.round((parseInt(shop?.price) / 100) * 20)
-      ) / 84;
+    let monthlyInstallment = Math.round(
+      parseInt(shop?.price) -
+        Math.round((parseInt(shop?.price) / 100) * 20) / 84
+    );
 
     for (let i = 1; i < 85; i++) {
       currMonth += 1;
@@ -138,6 +138,24 @@ const createCheckoutBooking = async (session) => {
     await shopModel.findByIdAndUpdate(shopId, {
       IsSold: true,
       client: user?._id,
+    });
+  } else if (splitRefId[1] == "shopPayment") {
+    let paymentId = splitRefId[0];
+
+    let date = Date.now();
+    let lastRec = await shopPayments
+      .find({ user: user?._id, IsPayed: true })
+      .sort({ payedDate: -1 });
+    if (lastRec?.length == 0) {
+      lastRec = 1;
+    } else {
+      lastRec = parseInt(lastRec[0]?.invoiceNo) + 1;
+    }
+
+    await shopPayments.findByIdAndUpdate(paymentId, {
+      IsPayed: true,
+      payedDate: date,
+      invoiceNo: lastRec,
     });
   } else {
     let leveyId = splitRefId[0];

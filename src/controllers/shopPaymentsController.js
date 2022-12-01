@@ -15,44 +15,42 @@ exports.getUserShopPaymetns = async (req, res) => {
   }
 };
 
-// exports.getCheckOutSessionLevey = async (req, res, next) => {
-//   try {
-//     let levey = await leveyModel.findById(req.params.leveyId);
-//     let user = await userModel.findById(req.params.userId);
+exports.getCheckOutSessionShopPayment = async (req, res, next) => {
+  try {
+    let sPayment = await shopPayments.findById(req.params.paymentId);
+    let user = await userModel.findById(req.params.userId);
 
-//     // let admission = await admissionModel.create({ ...req.body, admissionFee: college?.admissionFee, collegeId: college?._id, userId: user?._id });
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            unit_amount: Math.round(sPayment?.amount) * 100,
+            product_data: {
+              name: `${sPayment?.paymentName}`,
+              // description: 'Comfortable cotton t-shirt',
+              images: [],
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `${process.env.SUCCESS_PAYMENT_URL}/shopPayments`,
+      cancel_url: `${process.env.CANCEL_PAYMENT_URL}/shopPayments`,
+      customer_email: user?.email,
+      client_reference_id: `${req.params.paymentId}-shopPayment`,
+    });
 
-//     const session = await stripe.checkout.sessions.create({
-//       payment_method_types: ["card"],
-//       line_items: [
-//         {
-//           price_data: {
-//             currency: "ngn",
-//             unit_amount: levey?.amount * 100,
-//             product_data: {
-//               name: `${levey?.leveyBillName}`,
-//               // description: 'Comfortable cotton t-shirt',
-//               images: [],
-//             },
-//           },
-//           quantity: 1,
-//         },
-//       ],
-//       mode: "payment",
-//       success_url: `${process.env.SUCCESS_PAYMENT_URL}/levey`,
-//       cancel_url: `${process.env.CANCEL_PAYMENT_URL}/levey`,
-//       customer_email: user?.email,
-//       client_reference_id: `${req.params.leveyId}-levey`,
-//     });
-
-//     res.status(200).json({
-//       status: "success",
-//       session,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(400).json({
-//       status: "fail",
-//     });
-//   }
-// };
+    res.status(200).json({
+      status: "success",
+      session,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      status: "fail",
+    });
+  }
+};
