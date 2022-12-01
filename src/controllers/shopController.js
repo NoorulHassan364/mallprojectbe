@@ -84,51 +84,53 @@ const createCheckoutBooking = async (session) => {
       invoiceNo: lastRec,
     });
 
-    let arr = [];
-    let curDate = new Date();
-    let currMonth = curDate.getMonth() + 1;
-    let currYear = curDate.getFullYear();
+    if (splitRefId[2] == "20Percent") {
+      let arr = [];
+      let curDate = new Date();
+      let currMonth = curDate.getMonth() + 1;
+      let currYear = curDate.getFullYear();
 
-    let monthlyInstallment = Math.round(
-      ((parseInt(shop?.price) / 100) * 80) / 84
-    );
+      let monthlyInstallment = Math.round(
+        ((parseInt(shop?.price) / 100) * 80) / 84
+      );
 
-    for (let i = 1; i < 85; i++) {
-      currMonth += 1;
-      if (currMonth == 13) {
-        // arr.push(
-        await shopPayments.create({
-          paymentName: `${i}-Installment (${shop?.name})`,
-          IsPayed: false,
-          payedDate: "",
-          amount: monthlyInstallment,
-          dueDate: `${1}-${1}-${currYear + 1}`,
-          user: user,
-          shop: shop?._id,
-          invoiceNo: "",
-        });
+      for (let i = 1; i < 85; i++) {
+        currMonth += 1;
+        if (currMonth == 13) {
+          // arr.push(
+          await shopPayments.create({
+            paymentName: `${i}-Installment (${shop?.name})`,
+            IsPayed: false,
+            payedDate: "",
+            amount: monthlyInstallment,
+            dueDate: `${1}-${1}-${currYear + 1}`,
+            user: user,
+            shop: shop?._id,
+            invoiceNo: "",
+          });
 
-        // );
-        currMonth = 1;
-        currYear += 1;
-      } else {
-        await shopPayments.create({
-          paymentName: `${i}-Installment (${shop?.name})`,
-          IsPayed: false,
-          payedDate: "",
-          amount: monthlyInstallment,
-          dueDate: `${1}-${currMonth}-${currYear}`,
-          user: user,
-          shop: shop?._id,
-          invoiceNo: "",
-        });
-        // arr.push(
+          // );
+          currMonth = 1;
+          currYear += 1;
+        } else {
+          await shopPayments.create({
+            paymentName: `${i}-Installment (${shop?.name})`,
+            IsPayed: false,
+            payedDate: "",
+            amount: monthlyInstallment,
+            dueDate: `${1}-${currMonth}-${currYear}`,
+            user: user,
+            shop: shop?._id,
+            invoiceNo: "",
+          });
+          // arr.push(
 
-        // );
+          // );
+        }
       }
-    }
 
-    await shopPayments.create(arr);
+      await shopPayments.create(arr);
+    }
 
     await UserModel.findByIdAndUpdate(user?._id, {
       $push: { purchases: shopId },
