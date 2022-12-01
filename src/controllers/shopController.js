@@ -78,7 +78,7 @@ const createCheckoutBooking = async (session) => {
         splitRefId[2] === "buy"
           ? shop?.price
           : Math.round((parseInt(shop?.price) / 100) * 20),
-      dueDate: `${date.getDate()}-${getMonth() + 1}-${date.getFullYear()}`,
+      dueDate: `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`,
       user: user,
       shop: shop?._id,
       invoiceNo: lastRec,
