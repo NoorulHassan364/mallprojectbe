@@ -56,7 +56,7 @@ const createCheckoutBooking = async (session) => {
     let shopId = splitRefId[0];
     let shop = await shopModel.findByIdAndUpdate(shopId);
 
-    let date = Date.now();
+    let date = new Date();
 
     let lastRec = await shopPayments
       .find({ user: user?._id, IsPayed: true })
