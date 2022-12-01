@@ -16,7 +16,7 @@ exports.getCheckOutSession = async (req, res, next) => {
       line_items: [
         {
           price_data: {
-            currency: "ngn",
+            currency: "usd",
             unit_amount:
               req.query.type == "buy"
                 ? shop?.price * 100
@@ -136,10 +136,17 @@ const createCheckoutBooking = async (session) => {
       $push: { purchases: shopId },
     });
 
-    await shopModel.findByIdAndUpdate(shopId, {
-      IsSold: true,
-      client: user?._id,
-    });
+    if (splitRefId[2] == "20Percent") {
+      await shopModel.findByIdAndUpdate(shopId, {
+        client: user?._id,
+        onInstallment: true,
+      });
+    } else {
+      await shopModel.findByIdAndUpdate(shopId, {
+        IsSold: true,
+        client: user?._id,
+      });
+    }
   } else if (splitRefId[1] == "shopPayment") {
     let paymentId = splitRefId[0];
 
@@ -225,12 +232,14 @@ exports.getShopStatistics = async (req, res) => {
   try {
     let totalShops = await shopModel.find({});
     let soldShops = await shopModel.find({ IsSold: true });
+    let installmentShops = await shopModel.find({ onInstallment: true });
 
     res.status(201).json({
       status: "success",
       data: {
         totalShops,
         soldShops,
+        installmentShops,
       },
     });
   } catch (error) {

@@ -24,6 +24,10 @@ const shopSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  onInstallment: {
+    type: Boolean,
+    default: false,
+  },
   client: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
