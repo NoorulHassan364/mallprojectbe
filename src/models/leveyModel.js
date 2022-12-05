@@ -14,7 +14,7 @@ const leveySchema = new mongoose.Schema({
   },
   attachment: {
     type: String,
-    // required: true,
+    // requirejd: true,
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
